@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slot Machene App</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body>
+  <div id="container"></div>
+
+  <script type="text/babel">
+    'use strict';
+
+    {
+      const { useState, useRef, useEffect } = React;
+
+      const Panel = ({ isSpinning, onStop }) => {
+        const [imgIndex, setImgIndex] = useState(0);
+        const [isStopped, setIsStopped] = useState(true);
+        const timeoutId = useRef(null);
+
+        const images = [
+          "SlotMachine/seven.png",
+          "SlotMachine/bell.png",
+          "SlotMachine/cherry.png",
+        ];
+
+        const roll = () => {
+          setImgIndex(Math.floor(Math.random() * images.length));
+          timeoutId.current = setTimeout(roll, 50);
+        };
+
+        useEffect(() => {
+          if (isSpinning) {
+            setIsStopped(false);
+            roll();
+          }
+        }, [isSpinning]);
+
+        const stop = () => {
+          if (isStopped) return;
+          setIsStopped(true);
+          clearTimeout(timeoutId.current);
+          onStop(imgIndex);
+        };
+
+        return (
+          <>
+            <div>
+              <img
+                src={images[imgIndex]}
+                className="w-full h-auto"
+              />
+              <button
+                onClick={stop}
+                disabled={isStopped}
+                className={`w-full text-white bg-red-500 p-2 mt-2 ${isStopped ? 'opacity-50' : ''}`}
+              >
+                Stop
+              </button>
+            </div>
+          </>
+        )
+      }
+
+      const App = () => {
+        const [isSpinning, setIsSpinning] = useState(false);
+        const panelsLeft = useRef(3);
+        const results = useRef([]);
+
+        const spin = () => {
+          if (isSpinning) return;
+          setIsSpinning(true);
+          panelsLeft.current = 3;
+          results.current = [];
+        };
+
+        const handleStop = (index) => {
+          results.current.push(index);
+          panelsLeft.current--;
+
+          if (panelsLeft.current === 0) {
+            setIsSpinning(false);
+            checkResult();
+          }
+        };
+
+        const checkResult = () => {
+          const [r1, r2, r3] = results.current;
+          if (r1 === r2 && r2 === r3) {
+            alert('BIG BONUS!!');
+          }
+        };
+
+        return (
+          <>
+            <div className="w-[360px] mx-auto text-center font-bold">
+              <div
+                className="w-full   bg-gray-300 flex gap-2 justify-center p-4">
+                <Panel isSpinning={isSpinning} onStop={handleStop} />
+                <Panel isSpinning={isSpinning} onStop={handleStop} />
+                <Panel isSpinning={isSpinning} onStop={handleStop} />
+              </div>
+              <button
+                onClick={spin}
+                className="w-full text-white bg-violet-500 p-2 mt-2"
+              >
+                {isSpinning ? 'SPINNING...' : 'SPIN'}
+              </button>
+            </div>
+          </>
+        );
+      };
+
+      const container = document.querySelector('#container');
+      const root = ReactDOM.createRoot(container);
+      root.render(<App />);
+    }
+  </script>
+</body>
+
+</html>

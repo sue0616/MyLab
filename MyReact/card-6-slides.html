@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slides App</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body>
+  <div id="container"></div>
+
+  <script type="text/babel">
+    'use strict';
+
+    {
+      const Slide = (props) => {
+        const opacityClass = props.id === props.activeIndex ? 'opacity-100' : 'opacity-50';
+
+        return (
+          <li>
+            <img src={props.img} className={`w-[112px] ${opacityClass}`} />
+          </li>
+        )
+      };
+
+      const App = () => {
+        const [activeIndex, setActiveIndex] = React.useState(0);
+
+        const images = [
+          { id: 0, img: "Slideshow/pic0.png" },
+          { id: 1, img: "Slideshow/pic1.png" },
+          { id: 2, img: "Slideshow/pic2.png" },
+        ];
+
+        const setImages = images.map((img) => {
+          return (
+            <Slide
+              key={img.id}
+              id={img.id}
+              img={img.img}
+              activeIndex={activeIndex}
+            />
+          );
+        });
+
+        const handlePrev = () => {
+          if (activeIndex === 0) {
+            setActiveIndex(images.length - 1);
+            return;
+          }
+          setActiveIndex(activeIndex - 1);
+        };
+
+        const handleNext = () => {
+          if (activeIndex === images.length - 1) {
+            setActiveIndex(0);
+            return;
+          }
+          setActiveIndex(activeIndex + 1);
+        };
+
+        return (
+          <>
+            <div className="w-[360px] mx-auto text-center">
+              <img src={images[activeIndex].img} />
+              <div className="flex opa gap-3 mt-3">
+                <button
+                  onClick={handlePrev}
+                  className="w-[174px] border border-gray-300 p-2">←</button>
+                <button
+                  onClick={handleNext}
+                  className="w-[174px] border border-gray-300 p-2">→</button>
+              </div>
+              <ul className="flex gap-3 mt-3">
+                {setImages}
+              </ul>
+            </div>
+          </>
+        );
+      };
+
+      const container = document.querySelector('#container');
+      const root = ReactDOM.createRoot(container);
+      root.render(<App />);
+    }
+  </script>
+</body>
+
+</html>

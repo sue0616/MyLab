@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Countdown App</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body>
+  <div id="container"></div>
+
+  <script type="text/babel">
+    'use strict';
+
+    {
+      let endTime;
+      let intervalId;
+
+      const App = () => {
+        const [timer, setTimer] = React.useState('00:03');
+
+        function check() {
+          let countdown = endTime - new Date().getTime();
+
+          if (countdown < 0) {
+            clearInterval(intervalId);
+            countdown = 3 * 1000;
+          }
+
+          const totalSeconds = Math.floor(countdown / 1000);
+          const minutes = Math.floor(totalSeconds / 60);
+          const seconds = totalSeconds % 60;
+
+          const minutesFormatted = String(minutes).padStart(2, '0')
+          const secondsFormatted = String(seconds).padStart(2, '0')
+          const timerReuslt = minutesFormatted + ':' + secondsFormatted
+
+          setTimer(timerReuslt);
+        }
+
+        const startTimer = () => {
+          endTime = new Date().getTime() + 3 * 1000;
+          intervalId = setInterval(check, 100);
+        };
+
+        return (
+          <>
+            <div className="w-[360px] mx-auto text-center">
+              <p className="text-4xl font-mono  border border-gray-300 p-4">{timer}</p>
+              <button
+                onClick={startTimer}
+                className="w-full text-white bg-violet-500 p-2 mt-2"
+              >
+                Start
+              </button>
+            </div>
+          </>
+        );
+      }
+
+      const container = document.querySelector('#container');
+      const root = ReactDOM.createRoot(container);
+      root.render(<App />);
+    }
+  </script>
+</body>
+
+</html>

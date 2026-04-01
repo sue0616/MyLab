@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title> App</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body>
+  <div id="container"></div>
+
+  <script type="text/babel">
+    'use strict';
+
+    {
+      const { useState, useEffect, useRef } = React;
+
+      const App = () => {
+        const [numbers, setNumbers] = useState([]);
+        const [currentNum, setCurrentNum] = useState(0);
+        const [isRunning, setIsRunning] = useState(false);
+        const [result, setResult] = useState("0.00");
+
+        const startTime = useRef(0);
+        const timeoutId = useRef(null);
+
+        const initGame = () => {
+          const nums = [];
+          for (let i = 0; i < 25; i++) {
+            nums.push(i);
+          }
+
+          for (let i = nums.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [nums[i], nums[j]] = [nums[j], nums[i]];
+          }
+          setNumbers(nums);
+          setCurrentNum(0);
+          setIsRunning(false);
+          setResult("0.00");
+        };
+
+        useEffect(() => {
+          initGame();
+        }, []);
+
+        const runTimer = () => {
+          setResult(((Date.now() - startTime.current) / 1000).toFixed(2));
+          timeoutId.current = setTimeout(runTimer, 10);
+        };
+
+        const handleNumClick = (num) => {
+          if (num !== currentNum) return;
+
+          if (currentNum === 0) {
+            startTime.current = Date.now();
+            runTimer();
+            setIsRunning(true);
+          }
+
+          setCurrentNum(prev => prev + 1);
+
+          if (currentNum === 24) {
+            clearTimeout(timeoutId.current);
+            setIsRunning(false);
+          }
+        };
+
+        return (
+          <div className="w-[320px] mx-auto mt-10 text-center font-mono">
+            <div className="text-right p-2 bg-gray-100">{result}</div>
+            <ul className="grid grid-cols-5 gap-1 mt-2">
+              {numbers.map((num) => (
+                <li
+                  key={num}
+                  onClick={() => handleNumClick(num)}
+                  className={`
+                    h-[60px] flex items-center justify-center cursor-pointer shadow-sm select-none rounded
+                    ${num < currentNum ? 'opacity-0 pointer-events-none' : 'bg-violet-500 text-white hover:bg-violet-400 active:bg-violet-600'}
+                  `}
+                >
+                  {num + 1}
+                </li>
+              ))}
+            </ul>
+            <button
+              onClick={initGame}
+              className={`w-full mt-2 p-2 text-white bg-gray-800 ${isRunning ? 'opacity-50' : 'opacity-100'}`}
+              disabled={isRunning}
+            >
+              RESTART
+            </button>
+          </div>
+        );
+      };
+
+      const container = document.querySelector('#container');
+      const root = ReactDOM.createRoot(container);
+      root.render(<App />);
+    }
+  </script>
+</body>
+
+</html>

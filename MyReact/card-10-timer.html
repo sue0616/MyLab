@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Timer App</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body>
+  <div id="container"></div>
+
+  <script type="text/babel">
+    'use strict';
+
+    {
+      let startTime;
+      let timeoutId;
+      let elapsedTime = 0;
+
+      const App = () => {
+        const [timer, setTimer] = React.useState({ m: 0, s: 0, ms: 0 });
+        const [isRunning, setIsRunning] = React.useState(false);
+        const [btnFunc, setBtnFunc] = React.useState({
+          start: true,
+          stop: false,
+          reset: false,
+        });
+
+        const runTimer = () => {
+          const d = new Date(Date.now() - startTime + elapsedTime);
+          setTimer({
+            m: d.getMinutes(),
+            s: d.getSeconds(),
+            ms: d.getMilliseconds(),
+          });
+
+          timeoutId = setTimeout(() => {
+            runTimer();
+          }, 10);
+        };
+
+        const handleStartBtn = () => {
+          if (isRunning) return;
+          setIsRunning(true);
+          setBtnFunc({ ...btnFunc, start: false, stop: true, reset: false })
+          startTime = Date.now();
+          runTimer();
+        }
+
+        const handleStopBtn = () => {
+          setIsRunning(false);
+          setBtnFunc({ ...btnFunc, start: true, stop: false, reset: true })
+          clearTimeout(timeoutId);
+          elapsedTime += Date.now() - startTime;
+        }
+
+        const handleResetBtn = () => {
+          setIsRunning(false);
+          setBtnFunc({ ...btnFunc, start: true, stop: false, reset: false })
+          setTimer({ m: 0, s: 0, ms: 0 });
+          elapsedTime = 0;
+        }
+
+
+        return (
+          <>
+            <div className="w-[360px] mx-auto text-center">
+              <p className="text-4xl font-mono  border border-gray-300 p-4">
+                {String(timer.m).padStart(2, '0')}:
+                {String(timer.s).padStart(2, '0')}.
+                {String(timer.ms).padStart(3, '0')}
+              </p>
+              <div className="flex justify-between">
+                <button
+                  onClick={handleStartBtn}
+                  className={`
+                    w-28 text-white bg-violet-500 p-2 mt-2
+                    ${btnFunc.start ? 'opacity-100' : 'opacity-50'}
+                  `}
+                >
+                  Start
+                </button>
+                <button
+                  onClick={handleStopBtn}
+                  className={`
+                    w-28 text-white bg-violet-500 p-2 mt-2
+                    ${btnFunc.stop ? 'opacity-100' : 'opacity-50'}
+                  `}
+                >
+                  Stop
+                </button>
+                <button
+                  onClick={handleResetBtn}
+                  className={`
+                    w-28 text-white bg-violet-500 p-2 mt-2
+                    ${btnFunc.reset ? 'opacity-100' : 'opacity-50'}
+                  `}
+                >
+                  Reset
+                </button>
+              </div>
+            </div>
+          </>
+        );
+      };
+
+      const container = document.querySelector('#container');
+      const root = ReactDOM.createRoot(container);
+      root.render(<App />);
+    }
+  </script>
+</body>
+
+</html>

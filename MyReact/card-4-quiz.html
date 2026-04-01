@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title> App</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body>
+  <div id="container"></div>
+
+  <script type="text/babel">
+    'use strict';
+
+    {
+      const Option = (props) => {
+        const [clickedIndex, setClickedIndex] = React.useState(null);
+
+        const handleClick = (index) => {
+          if (clickedIndex !== null) return;
+          setClickedIndex(index);
+        };
+
+        return (
+          <>
+            {props.ops.map((text, index) => {
+              let colorClass = '';
+              if (clickedIndex === index) {
+                colorClass = (index === props.ans) ? 'text-green-500' : 'text-red-500';
+              }
+
+              return (
+                <li
+                  key={index}
+                  onClick={() => handleClick(index)}
+                  className={`hover:cursur-pointer ${colorClass}`}
+                >
+                  {text}
+                </li>
+              );
+            })}
+          </>
+        );
+      }
+
+      const Quiz = (props) => {
+        return (
+          <>
+            <section className="">
+              <h2 className=" font-bold mt-2">{props.h2}</h2>
+              <ul className="mt-1 hover:cursor-pointer">
+                <Option
+                  key={props.id}
+                  ops={props.ops}
+                  ans={props.ans}
+                />
+              </ul>
+            </section>
+          </>
+        );
+      };
+
+      const App = () => {
+        const quizzes = [
+          { id: 0, h2: '1の正解は？', ops: ['選択肢 A', '選択肢 B', '選択肢 C'], ans: 0 },
+          { id: 1, h2: '2の正解は？', ops: ['選択肢 A', '選択肢 B', '選択肢 C'], ans: 1 },
+          { id: 2, h2: '3の正解は？', ops: ['選択肢 A', '選択肢 B', '選択肢 C'], ans: 2 },
+        ];
+
+        const quizItem = quizzes.map((quiz) => {
+          return (
+            <Quiz
+              key={quiz.id}
+              h2={quiz.h2}
+              ops={quiz.ops}
+              ans={quiz.ans}
+            />
+          );
+        });
+
+        return (
+          <>
+            <div className="w-[360px] mx-auto text-center">
+              <h1 className="text-2xl p-2 font-bold border-b-2 border-gray-300">三択クイズ</h1>
+              {quizItem}
+            </div>
+          </>
+        );
+      };
+
+      const container = document.querySelector('#container');
+      const root = ReactDOM.createRoot(container);
+      root.render(<App />);
+    }
+  </script>
+</body>
+
+</html>

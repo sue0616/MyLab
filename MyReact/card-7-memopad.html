@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title> App</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body>
+  <div id="container"></div>
+
+  <script type="text/babel">
+    'use strict';
+
+    {
+      const App = () => {
+        const [memo, setMemo] = React.useState(() => {
+          const saved = localStorage.getItem('memotext');
+          return saved || '';
+        });
+
+        const [isSaved, setIsSaved] = React.useState(false);
+
+        const saveMemo = () => {
+          localStorage.setItem('memotext', memo);
+          setIsSaved(true);
+          setTimeout(() => { setIsSaved(false); }, 1000);
+        };
+
+        const deleteMemo = () => {
+          if (confirm('本当に削除しますか？') === true) {
+            setMemo('');
+            localStorage.removeItem('memotext');
+          }
+        };
+
+        return (
+          <>
+            <div className="w-[360px] mx-auto text-center">
+              <h1 className="text-2xl p-2 font-bold">メモ帳</h1>
+              <textarea
+                onChange={(e) => setMemo(e.target.value)}
+                value={memo}
+                className="w-full h-[200px] border border-gray-300 p-4"></textarea>
+              <div className="flex mt-1 justify-between">
+                <p className="animate-bounce mt-2">
+                  {isSaved ? '保存しました！' : ''}
+                </p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={deleteMemo}
+                    className="bg-gray-300 px-2 py-1"
+                  >
+                    削除
+                  </button>
+                  <button
+                    onClick={saveMemo}
+                    className="bg-gray-300 px-2 py-1"
+                  >
+                    保存
+                  </button>
+                </div>
+              </div>
+            </div>
+          </>
+        );
+      };
+
+      const container = document.querySelector('#container');
+      const root = ReactDOM.createRoot(container);
+      root.render(<App />);
+    }
+  </script>
+</body>
+
+</html>

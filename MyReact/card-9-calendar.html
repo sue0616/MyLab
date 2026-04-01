@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendar App</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body>
+  <div id="container"></div>
+
+  <script type="text/babel">
+    'use strict';
+
+    {
+      const App = () => {
+        const today = new Date();
+        const [currentDate, setCurrentDate] = React.useState({
+          year: today.getFullYear(),
+          month: today.getMonth()
+        });
+
+        const { year, month } = currentDate;
+        const d = new Date(year, month);
+        const displayYear = d.getFullYear();
+        const displayMonth = d.getMonth() + 1;
+
+        const getCalendarHead = () => {
+          const dates = [];
+          const d = new Date(year, month, 0).getDate();
+          const n = new Date(year, month, 1).getDay();
+
+          for (let i = 0; i < n; i++) {
+            dates.unshift({
+              date: d - i,
+              isToday: false,
+              isDisabled: true,
+            })
+          }
+
+          return dates;
+        };
+
+        const getCalendarBody = () => {
+          const dates = [];
+          const lastDate = new Date(currentDate.year, currentDate.month + 1, 0).getDate();
+
+          for (let i = 1; i <= lastDate; i++) {
+            dates.push({
+              date: i,
+              isToday: false,
+              isDisabled: false,
+            });
+          }
+
+          if (year === today.getFullYear() && month === today.getMonth()) {
+            dates[today.getDate() - 1].isToday = true;
+          }
+
+          return dates;
+        };
+
+        const getCalendarTail = () => {
+          const dates = [];
+          const lastDay = new Date(year, month + 1, 0).getDay();
+
+          for (let i = 1; i < 7 - lastDay; i++) {
+            dates.push({
+              date: i,
+              isToday: false,
+              isDisabled: true,
+            })
+          }
+
+          return dates;
+        };
+
+        const renderWeeks = () => {
+          const dates = [
+            ...getCalendarHead(),
+            ...getCalendarBody(),
+            ...getCalendarTail(),
+          ]
+
+          const weeks = [];
+          for (let i = 0; i < dates.length; i += 7) {
+            weeks.push(dates.slice(i, i + 7));
+          }
+
+          return (
+            weeks.map((week, index) => (
+              <tr key={index}>
+                {week.map((dateNum, i) => (
+                  <td
+                    key={i}
+                    className={`
+                      w-[50px] p-2
+                      ${dateNum.isToday ? 'font-bold' : ''}
+                      ${dateNum.isDisabled ? 'opacity-50' : ''}
+                      ${i === 0 ? 'text-red-500' : ''}
+                      ${i === 6 ? 'text-blue-500' : ''}
+                      `}
+                  >
+                    {dateNum.date}
+                  </td>
+                ))}
+              </tr>
+            )))
+        }
+
+        return (
+          <>
+            <div className="w-[360px] mx-auto text-center">
+              <table className="w-full ont-mono text-sm border-2 border-gray-300">
+                <thead className="font-bold bg-gray-300">
+                  <tr>
+                    <th><button onClick={() => setCurrentDate({ ...currentDate, month: month - 1 })}>&laquo;</button></th>
+                    <th colSpan="5" className="pt-2">{displayYear} / {String(displayMonth).padStart(2, '0')}</th>
+                    <th><button onClick={() => setCurrentDate({ ...currentDate, month: month + 1 })}>&raquo;</button></th>
+                  </tr>
+                  <tr>
+                    {
+                      ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, index) => (
+                        <th
+                          key={index}
+                          className="p-[10px]"
+                        >
+                          {day}
+                        </th>
+                      ))
+                    }
+                  </tr>
+                </thead>
+                <tbody>
+                  {renderWeeks()}
+                </tbody>
+                <tfoot className="font-bold bg-gray-300">
+                  <tr>
+                    <td colSpan="7">
+                      <button
+                        onClick={() => setCurrentDate({ year: today.getFullYear(), month: today.getMonth() })}
+                        className="p-2">
+                        Today
+                      </button>
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </>
+        );
+      };
+
+      const container = document.querySelector('#container');
+      const root = ReactDOM.createRoot(container);
+      root.render(<App />);
+    }
+  </script>
+</body>
+
+</html>

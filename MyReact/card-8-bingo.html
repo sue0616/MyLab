@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bingo App</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body>
+  <div id="container"></div>
+
+  <script type="text/babel">
+    'use strict';
+
+    {
+      const App = () => {
+        const createColumn = (col) => {
+          const source = [];
+          for (let i = 0; i < 15; i++) {
+            source[i] = i + 1 + 15 * col;
+          }
+
+          const column = [];
+          for (let i = 0; i < 5; i++) {
+            column[i] = source.splice(Math.floor(Math.random() * source.length), 1)[0];
+          }
+
+          return column;
+        }
+
+        const createColumns = () => {
+          const columns = [];
+          for (let i = 0; i < 5; i++) {
+            columns[i] = createColumn(i);
+          }
+          columns[2][2] = 'FREE';
+          return columns;
+        }
+
+        const columns = createColumns();
+
+        return (
+          <>
+            <div className="w-[360px] mx-auto text-center">
+              <table className="w-full ont-mono font-bold bg-gray-300">
+                <thead>
+                  <tr className="h-[60px]">
+                    {
+                      'BINGO'.split('').map((char, index) => (
+                        <th
+                          key={index} 
+                          className="w-[60px] border-2 border-white"
+                        >
+                          {char}
+                        </th>
+                      ))
+                    }
+                  </tr>
+                </thead>
+                <tbody>
+                  {
+                    [0, 1, 2, 3, 4].map(row => (
+                      <tr key={row}>
+                        {columns.map((colData, col) => (
+                          <td
+                            key={col}
+                            className="w-[60px] h-[60px] border-2 border-white"
+                          >
+                            {colData[row]}
+                          </td>
+                        ))}
+                      </tr>
+                    ))
+                  }
+                </tbody>
+              </table>
+            </div>
+          </>
+        );
+      };
+
+      const container = document.querySelector('#container');
+      const root = ReactDOM.createRoot(container);
+      root.render(<App />);
+    }
+  </script>
+</body>
+
+</html>

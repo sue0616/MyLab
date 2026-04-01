@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Typing App</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body>
+  <div id="container"></div>
+
+  <script type="text/babel">
+    'use strict';
+
+    {
+      const { useState, useEffect, useRef } = React;
+
+      const App = () => {
+        const [text, setText] = useState('Click to start!');
+        const [isPlaying, setIsPlaying] = useState(false);
+        const [result, setResult] = useState("Let's check your typing skill !");
+
+        const wordRef = useRef('');
+        const locRef = useRef(0);
+        const wordsRef = useRef(['red', 'blue', 'pink']);
+        const startTimeRef = useRef(0);
+
+        const setWord = () => {
+          const remainingWords = wordsRef.current;
+          const nextWord = remainingWords.splice(Math.floor(Math.random() * remainingWords.length), 1)[0];
+          wordRef.current = nextWord;
+          setText(nextWord);
+          locRef.current = 0;
+        };
+
+        const handleKeyDown = (e) => {
+          if (!isPlaying) return;
+
+          const currentWord = wordRef.current;
+          const currentLoc = locRef.current;
+
+          if (e.key !== currentWord[currentLoc]) return;
+
+          locRef.current += 1;
+          const nextLoc = locRef.current;
+
+          setText('_'.repeat(nextLoc) + currentWord.substring(nextLoc));
+
+          if (nextLoc === currentWord.length) {
+            if (wordsRef.current.length === 0) {
+              const elapsedTime = ((Date.now() - startTimeRef.current) / 1000).toFixed(2);
+              setResult(`Finished! ${elapsedTime} seconds!`);
+              setIsPlaying(false);
+              return;
+            }
+            setWord();
+          }
+        };
+
+        useEffect(() => {
+          window.addEventListener('keydown', handleKeyDown);
+          return () => window.removeEventListener('keydown', handleKeyDown);
+        }, [isPlaying]);
+
+        const gameStart = () => {
+          if (isPlaying) return;
+          setIsPlaying(true);
+          startTimeRef.current = Date.now();
+          wordsRef.current = ['red', 'blue', 'pink'];
+          setWord();
+        };
+
+        return (
+          <>
+            <div
+              onClick={gameStart}
+              className="w-[360px] mx-auto text-center"
+            >
+              <h1 className="text-2xl">Typing Game</h1>
+              <p className="text-5xl h-36 flex items-center justify-center font-mono tracking-wider ">{text}</p>
+              <p className="mt-2">{result}</p>
+            </div>
+          </>
+        );
+      };
+
+      const container = document.querySelector('#container');
+      const root = ReactDOM.createRoot(container);
+      root.render(<App />);
+    }
+  </script>
+</body>
+
+</html>
